@@ -1,0 +1,415 @@
+{
+ "modules": [
+  {
+   "module": 5,
+   "title": "Amazon EC2를 사용하여 컴퓨팅 계층 추가"
+  }
+ ],
+ "questions": [
+  {
+   "id": "m05-q15",
+   "module": 5,
+   "difficulty": "basic",
+   "waf": false,
+   "scenario": "운영팀이 EC2 인스턴스를 시작할 AMI를 찾고 있다.",
+   "requirement": "AMI를 얻을 수 있는 소스를 알아야 한다.",
+   "question": "강의에서 소개한 AMI 소스에 해당하는 것은? (3개 선택)",
+   "choose": 3,
+   "options": [
+    "Quick Start",
+    "AWS Marketplace",
+    "My AMI(사용자가 생성한 AMI)",
+    "Amazon S3 Inventory",
+    "AWS Trusted Advisor"
+   ],
+   "answer": [
+    0,
+    1,
+    2
+   ],
+   "explanation": "AMI 소스에는 Quick Start(AWS 제공), 커뮤니티 AMI, AWS Marketplace, My AMI(사용자가 생성해 저장한 AMI)가 있다. 커뮤니티 AMI는 AWS 검증을 거치지 않으므로 주의해야 한다.",
+   "optionNotes": [
+    "정답.",
+    "정답.",
+    "정답.",
+    "S3 객체 보고 기능이다.",
+    "계정 점검 서비스이다."
+   ],
+   "keywords": [
+    "AMI를 얻을 수 있는 소스"
+   ],
+   "source": "모듈 5 p.29"
+  },
+  {
+   "id": "m05-q16",
+   "module": 5,
+   "difficulty": "basic",
+   "waf": false,
+   "scenario": "한 엔지니어가 표준 웹 서버 이미지를 AMI로 만들어 여러 환경에서 사용하려 한다.",
+   "requirement": "AMI를 사용할 때 얻는 이점을 정리해야 한다.",
+   "question": "강의에서 제시한 AMI의 이점은? (3개 선택)",
+   "choose": 3,
+   "options": [
+    "반복성",
+    "재사용성",
+    "복구성",
+    "무제한 스토리지 용량",
+    "자동 비용 절감"
+   ],
+   "answer": [
+    0,
+    1,
+    2
+   ],
+   "explanation": "AMI는 같은 구성의 인스턴스를 반복해서 시작(반복성), 여러 환경에서 재사용(재사용성), 장애 시 동일 구성으로 신속히 복구(복구성)할 수 있게 한다.",
+   "optionNotes": [
+    "정답.",
+    "정답.",
+    "정답.",
+    "AMI의 이점이 아니다.",
+    "AMI의 직접적인 이점이 아니다."
+   ],
+   "keywords": [
+    "AMI의 이점"
+   ],
+   "source": "모듈 5 p.29"
+  },
+  {
+   "id": "m05-q17",
+   "module": 5,
+   "difficulty": "basic",
+   "waf": false,
+   "scenario": "Linux AMI를 선택할 때 가상화 유형 옵션이 HVM과 PV로 표시된다.",
+   "requirement": "최상의 성능을 얻을 수 있는 가상화 유형을 선택해야 한다.",
+   "question": "권장되는 가상화 유형은?",
+   "choose": 1,
+   "options": [
+    "HVM(하드웨어 가상 머신)",
+    "PV(반가상화)",
+    "가상화 유형은 성능과 무관하다",
+    "컨테이너 가상화"
+   ],
+   "answer": [
+    0
+   ],
+   "explanation": "강의 핵심 사항: 최상의 성능을 얻으려면 HVM 가상화 유형의 AMI를 사용한다.",
+   "optionNotes": [
+    "정답.",
+    "구형 방식이다.",
+    "성능에 영향이 있다.",
+    "AMI 가상화 유형 옵션이 아니다."
+   ],
+   "keywords": [
+    "최상의 성능"
+   ],
+   "source": "모듈 5 p.29"
+  },
+  {
+   "id": "m05-q18",
+   "module": 5,
+   "difficulty": "basic",
+   "waf": false,
+   "scenario": "아키텍트가 인스턴스 유형 m5d.xlarge를 검토하고 있다.",
+   "requirement": "이름 구성 요소의 의미를 해석해야 한다.",
+   "question": "m5d.xlarge에 대한 해석으로 옳은 것은?",
+   "choose": 1,
+   "options": [
+    "m은 범용 패밀리, 5는 세대, d는 로컬 NVMe 인스턴스 스토어, xlarge는 크기이다.",
+    "m은 메모리 최적화, 5는 vCPU 수, d는 전용 호스트, xlarge는 리전이다.",
+    "m은 범용 패밀리, 5는 가용 영역 수, d는 GPU, xlarge는 스토리지 크기이다.",
+    "d는 AWS Graviton 프로세서를 의미한다."
+   ],
+   "answer": [
+    0
+   ],
+   "explanation": "인스턴스 유형 이름은 패밀리(m=범용), 세대(5), 추가 기능(d=로컬 NVMe 스토리지, g=Graviton, n=네트워크 최적화 등), 크기(xlarge)로 구성된다.",
+   "optionNotes": [
+    "정답.",
+    "메모리 최적화는 R 패밀리이다.",
+    "세대 번호이며 d는 GPU가 아니다.",
+    "Graviton은 g이다."
+   ],
+   "keywords": [
+    "m5d.xlarge"
+   ],
+   "source": "모듈 5 p.32"
+  },
+  {
+   "id": "m05-q19",
+   "module": 5,
+   "difficulty": "basic",
+   "waf": false,
+   "scenario": "한 회사가 여러 Windows Server 인스턴스에서 SMB 프로토콜로 공유 폴더를 사용해야 한다.",
+   "requirement": "여러 Microsoft Windows 인스턴스를 지원하는 공유 데이터 볼륨이 필요하다.",
+   "question": "가장 적합한 스토리지는?",
+   "choose": 1,
+   "options": [
+    "Amazon FSx for Windows File Server",
+    "Amazon EFS",
+    "인스턴스 스토어",
+    "Amazon EBS 처리량 최적화 HDD(st1)"
+   ],
+   "answer": [
+    0
+   ],
+   "explanation": "강의 핵심 사항: 여러 Linux 인스턴스 공유는 Amazon EFS, 여러 Windows 인스턴스 공유는 Amazon FSx for Windows File Server를 사용한다.",
+   "optionNotes": [
+    "정답.",
+    "EFS는 Linux(NFS)용이다.",
+    "단일 인스턴스의 임시 스토리지이다.",
+    "단일 인스턴스에 연결되는 블록 스토리지이다."
+   ],
+   "keywords": [
+    "Windows Server 인스턴스",
+    "SMB"
+   ],
+   "source": "모듈 5 p.56"
+  },
+  {
+   "id": "m05-q20",
+   "module": 5,
+   "difficulty": "basic",
+   "waf": false,
+   "scenario": "한 개발자가 EC2 요금이 초 단위로 청구되는 조건을 확인하고 있다.",
+   "requirement": "강의 핵심 사항의 초당 결제 적용 범위를 알아야 한다.",
+   "question": "초당 결제에 대한 설명으로 옳은 것은?",
+   "choose": 1,
+   "options": [
+    "Amazon Linux 또는 Ubuntu를 실행하는 온디맨드·예약·스팟 인스턴스에서만 사용할 수 있다.",
+    "모든 운영 체제의 전용 호스트에서만 사용할 수 있다.",
+    "Windows 인스턴스에서만 사용할 수 있다.",
+    "초당 결제는 EC2에서 제공되지 않는다."
+   ],
+   "answer": [
+    0
+   ],
+   "explanation": "강의 핵심 사항: 초당 결제 옵션은 Amazon Linux 또는 Ubuntu를 실행하는 온디맨드 인스턴스, 예약 인스턴스, 스팟 인스턴스에 대해서만 사용할 수 있다.",
+   "optionNotes": [
+    "정답.",
+    "적용 범위가 다르다.",
+    "적용 범위가 다르다.",
+    "제공된다."
+   ],
+   "keywords": [
+    "초 단위로 청구"
+   ],
+   "source": "모듈 5 p.80"
+  },
+  {
+   "id": "m05-q21",
+   "module": 5,
+   "difficulty": "advanced",
+   "waf": false,
+   "scenario": "한 회사는 트래픽 급증 시 Auto Scaling으로 새 인스턴스를 빠르게 추가해야 한다. 현재는 기본 OS AMI로 시작한 뒤 사용자 데이터로 모든 소프트웨어를 설치해 인스턴스가 서비스 가능해지기까지 15분이 걸린다.",
+   "requirement": "인스턴스 부팅 후 서비스 준비 시간을 최소화해야 한다.",
+   "question": "가장 적합한 AMI 배포 모델은?",
+   "choose": 1,
+   "options": [
+    "필요한 OS 구성과 애플리케이션을 모두 포함한 골든 AMI를 사용한다.",
+    "기본 AMI를 유지하고 사용자 데이터 스크립트를 더 길게 작성한다.",
+    "변경 가능한 실버 AMI로 시작한 뒤 실행 중인 인스턴스에 업데이트를 푸시한다.",
+    "커뮤니티 AMI를 임의로 선택한다.",
+    "인스턴스 스토어 지원 AMI로 변경한다."
+   ],
+   "answer": [
+    0
+   ],
+   "explanation": "AMI 배포 모델: 기본 AMI(OS 전용, 완전 구성 가능하지만 구축 시간이 김), 실버 AMI(변경 가능한 모델, 업데이트를 수동/코드로 푸시), 골든 AMI(구성이 모두 베이킹된 변경 불가능한 AMI, 모든 인스턴스가 동일하게 작동, 부팅 시간이 가장 짧지만 이미지 구축·관리 부담이 큼).",
+   "optionNotes": [
+    "정답.",
+    "설치 시간이 오히려 늘어난다.",
+    "실버 AMI는 변경 가능한(mutable) 모델로, 시작 후 구성·업데이트 작업이 남아 골든 AMI보다 준비가 느리다.",
+    "검증되지 않아 프로덕션에 권장되지 않는다.",
+    "부팅 속도 개선책이 아니며 오히려 더 느릴 수 있다."
+   ],
+   "keywords": [
+    "15분",
+    "준비 시간을 최소화"
+   ],
+   "source": "모듈 5 p.64-69"
+  },
+  {
+   "id": "m05-q22",
+   "module": 5,
+   "difficulty": "advanced",
+   "waf": false,
+   "scenario": "한 회사는 소수의 핵심 인스턴스(기본 DB 노드, 라이선스 서버 등)를 운영한다. 하나의 하드웨어 장애가 여러 핵심 인스턴스를 동시에 중단시키는 것을 막고 싶다.",
+   "requirement": "상관관계가 있는 실패(correlated failure)의 위험을 줄여야 한다.",
+   "question": "가장 적합한 배치 그룹 전략은?",
+   "choose": 1,
+   "options": [
+    "분산(Spread) 배치 그룹",
+    "클러스터(Cluster) 배치 그룹",
+    "모든 인스턴스를 같은 랙에 배치",
+    "파티션 수를 1로 설정한 파티션 배치 그룹",
+    "배치 그룹 없이 같은 호스트에 배치"
+   ],
+   "answer": [
+    0
+   ],
+   "explanation": "분산 배치 그룹은 각 인스턴스를 서로 다른 기본 하드웨어(랙)에 배치해 동시 장애 위험을 줄인다. 소수의 핵심 인스턴스에 적합하다.",
+   "optionNotes": [
+    "정답.",
+    "저지연을 위해 인스턴스를 가깝게 모으므로 동시 장애 위험이 커진다.",
+    "하드웨어 장애 시 함께 중단된다.",
+    "파티션 1개면 장애 격리 효과가 없다.",
+    "동시 장애 위험이 가장 크다."
+   ],
+   "keywords": [
+    "하나의 하드웨어 장애",
+    "동시에 중단"
+   ],
+   "source": "모듈 5 p.67"
+  },
+  {
+   "id": "m05-q23",
+   "module": 5,
+   "difficulty": "advanced",
+   "waf": false,
+   "scenario": "한 회사가 HDFS, Cassandra 같은 대규모 분산·복제 워크로드를 수백 대의 EC2에서 운영한다. 랙 장애가 발생해도 복제본이 서로 다른 하드웨어 그룹에 있어야 한다.",
+   "requirement": "인스턴스 그룹 단위로 하드웨어를 공유하지 않도록 논리적으로 분리해야 한다.",
+   "question": "가장 적합한 배치 그룹 전략은?",
+   "choose": 1,
+   "options": [
+    "파티션(Partition) 배치 그룹",
+    "클러스터(Cluster) 배치 그룹",
+    "분산(Spread) 배치 그룹(인스턴스 수가 매우 많아도 항상 적합)",
+    "전용 호스트 1대에 모두 배치",
+    "단일 AZ 기본 배치"
+   ],
+   "answer": [
+    0
+   ],
+   "explanation": "파티션 배치 그룹은 인스턴스를 논리적 파티션으로 나누고 파티션끼리 랙(하드웨어)을 공유하지 않게 하여, 대규모 분산·복제 워크로드의 장애를 파티션 단위로 격리한다.",
+   "optionNotes": [
+    "정답.",
+    "저지연 HPC용으로 장애 격리와 반대이다.",
+    "분산 배치는 AZ당 인스턴스 수 제한이 있어 수백 대 규모에는 부적합하다.",
+    "단일 실패 지점이다.",
+    "하드웨어 분리를 보장하지 않는다."
+   ],
+   "keywords": [
+    "HDFS, Cassandra",
+    "수백 대"
+   ],
+   "source": "모듈 5 p.67"
+  },
+  {
+   "id": "m05-q24",
+   "module": 5,
+   "difficulty": "advanced",
+   "waf": false,
+   "scenario": "AZ-a에 있는 EC2 인스턴스의 EBS 데이터 볼륨을 AZ-b의 새 인스턴스에서 사용해야 한다.",
+   "requirement": "EBS 볼륨의 가용 영역 제약을 고려해 데이터를 옮겨야 한다.",
+   "question": "가장 적절한 방법은? (2개 선택)",
+   "choose": 2,
+   "options": [
+    "EBS 볼륨의 스냅샷을 생성한다(스냅샷은 S3에 저장).",
+    "스냅샷으로 AZ-b에 새 EBS 볼륨을 만들어 새 인스턴스에 연결한다.",
+    "기존 EBS 볼륨을 AZ-b 인스턴스에 직접 연결한다.",
+    "인스턴스 스토어로 데이터를 복사한 뒤 인스턴스를 중지한다.",
+    "EBS 볼륨을 퍼블릭 IP로 공유한다."
+   ],
+   "answer": [
+    0,
+    1
+   ],
+   "explanation": "EBS 볼륨은 특정 가용 영역에 생성되며 같은 AZ의 인스턴스에만 연결할 수 있다. 다른 AZ로 옮기려면 스냅샷(S3에 저장)을 만들고 그 스냅샷으로 대상 AZ에 새 볼륨을 생성한다.",
+   "optionNotes": [
+    "정답.",
+    "정답.",
+    "EBS는 다른 AZ의 인스턴스에 연결할 수 없다.",
+    "인스턴스 스토어는 중지 시 데이터가 삭제된다.",
+    "그런 기능은 없다."
+   ],
+   "keywords": [
+    "AZ-a",
+    "AZ-b의 새 인스턴스"
+   ],
+   "source": "모듈 5 p.43-48"
+  },
+  {
+   "id": "m05-q25",
+   "module": 5,
+   "difficulty": "advanced",
+   "waf": true,
+   "scenario": "한 회사가 Well-Architected 원칙에 따라 EC2 컴퓨팅 계층을 검토하고 있다.",
+   "requirement": "강의에서 제시한 컴퓨팅 모범 사례와 원칙을 바르게 연결해야 한다.",
+   "question": "모범 사례와 원칙의 연결로 옳은 것은? (3개 선택)",
+   "choose": 3,
+   "options": [
+    "컴퓨팅 보호를 자동화한다 – 보안",
+    "최적의 요금 모델을 선택한다 – 비용 최적화",
+    "요구 사항을 충족하는 최소한의 하드웨어만 사용하고 영향이 가장 적은 인스턴스 유형을 사용한다 – 지속 가능성",
+    "워크로드에 맞게 컴퓨팅 리소스를 적정 크기로 조정한다 – 보안",
+    "최적의 요금 모델을 선택한다 – 운영 우수성"
+   ],
+   "answer": [
+    0,
+    1,
+    2
+   ],
+   "explanation": "강의 핵심 사항: 컴퓨팅 보호 자동화(보안), 컴퓨팅 옵션 규모 조정·리소스 적정 크기 조정(성능 효율성), 올바른 리소스 유형·크기·수량 및 최적 요금 모델 선택(비용 최적화), 최소 하드웨어·영향이 적은 인스턴스 사용(지속 가능성).",
+   "optionNotes": [
+    "정답.",
+    "정답.",
+    "정답.",
+    "적정 크기 조정은 성능 효율성(및 비용 최적화)이다.",
+    "요금 모델은 비용 최적화이다."
+   ],
+   "keywords": [
+    "바르게 연결"
+   ],
+   "source": "모듈 5 p.93"
+  },
+  {
+   "id": "m05-q26",
+   "module": 5,
+   "difficulty": "advanced",
+   "waf": false,
+   "scenario": "한 회사가 레거시 애플리케이션을 클라우드로 옮긴다. 이 애플리케이션은 특정 커널 설정과 사용자 지정 OS 에이전트가 필요하며, 운영 체제 수준까지 완전한 제어가 필요하다.",
+   "requirement": "AWS 컴퓨팅 서비스 범주 중 인프라 제어 수준이 가장 높은 옵션을 골라야 한다.",
+   "question": "가장 적합한 서비스는?",
+   "choose": 1,
+   "options": [
+    "Amazon EC2(가상 머신)",
+    "AWS Lambda(서버리스)",
+    "AWS Elastic Beanstalk(PaaS)",
+    "AWS Fargate(서버리스 컨테이너)",
+    "Amazon Lightsail(VPS)"
+   ],
+   "answer": [
+    0
+   ],
+   "explanation": "컴퓨팅 범주는 VM → 컨테이너 → VPS → PaaS → 서버리스 순으로 갈수록 배포가 빨라지고 인프라 제어는 줄어든다. OS 수준의 완전한 제어가 필요하면 EC2(VM)를 사용한다.",
+   "optionNotes": [
+    "정답.",
+    "OS에 접근할 수 없다.",
+    "플랫폼을 AWS가 관리하므로 제어 수준이 낮다.",
+    "서버를 관리하지 않으므로 커널 제어가 불가능하다.",
+    "단순화된 VPS로 세부 제어가 제한적이다."
+   ],
+   "keywords": [
+    "운영 체제 수준까지 완전한 제어"
+   ],
+   "source": "모듈 5 p.11-13, p.19"
+  }
+ ],
+ "cards": [
+  {
+   "category": "concept",
+   "front": "AMI 배포 모델",
+   "back": "기본 AMI: OS 전용 → 시작 후 구성(유연하지만 느림)\n실버 AMI: 변경 가능한 모델, 업데이트를 푸시\n골든 AMI: 구성이 모두 베이킹된 변경 불가 AMI → 가장 빠른 부팅, 구축·관리 부담↑"
+  },
+  {
+   "category": "concept",
+   "front": "배치 그룹 3종",
+   "back": "클러스터: 한 AZ에 근접 배치 → 저지연·고처리량(HPC)\n분산: 서로 다른 하드웨어 → 소수 핵심 인스턴스 동시 장애 방지\n파티션: 파티션 간 랙 비공유 → HDFS·Cassandra 등 대규모 분산"
+  },
+  {
+   "category": "concept",
+   "front": "인스턴스 유형 이름 읽기",
+   "back": "c7gn.xlarge = 패밀리 c(컴퓨팅) · 세대 7 · 옵션 g(Graviton) n(네트워크) · 크기 xlarge\nd = 로컬 NVMe · M/T 범용 · R 메모리 · I 스토리지 · P/G GPU"
+  }
+ ]
+}
