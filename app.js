@@ -5,11 +5,16 @@ const BY_ID = Object.fromEntries(QS.map(q => [q.id, q]));
 const MODS = Object.keys(QB.modules).map(Number).sort((a, b) => a - b);
 const EXAM = new Date('2026-10-30T09:00:00');
 const MOCK_BASIC = 13, MOCK_ADV = 12;
-const L = 'ABCDE';
+const L = 'ABCDEF';
+// Content updates, newest first. Each batch tags its questions (data/*.json "batch") so returning users can solve only the new ones.
+const UPDATES = [
+  { batch: 'kc-2026-10-24', date: '2026-10-24', title: 'AWS Academy 공식 지식 확인 60문항 추가', desc: '모듈 2~7 지식 확인(Canvas) 원문 문항과 공식 정답·해설을 추가했습니다. 오답 보기마다 함정 해설도 달았습니다.' },
+];
 const KEY = 'awsMidterm.v1';
 
 // ---------- persisted state ----------
-const blank = () => ({ stats: {}, wrong: {}, optBm: {}, star: {}, history: [], mock: null, cardIdx: 0 });
+// new fields must be additive with defaults here: saved progress from older versions is merged onto this
+const blank = () => ({ stats: {}, wrong: {}, optBm: {}, star: {}, history: [], mock: null, cardIdx: 0, seenUpdates: {} });
 let S;
 try { S = Object.assign(blank(), JSON.parse(localStorage.getItem(KEY)) || {}); } catch { S = blank(); }
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} };
@@ -75,7 +80,8 @@ function qHTML(q, o) {
   const chips = `<span class="chip">${modName(q.module)}</span>`
     + `<span class="chip ${q.difficulty === 'advanced' ? 'adv' : ''}">${q.difficulty === 'advanced' ? '자격증 응용' : '지식 확인'}</span>`
     + (multi ? `<span class="chip multi">답 ${q.choose}개 고르기</span>` : '')
-    + (q.waf ? '<span class="chip waf">Well-Architected</span>' : '');
+    + (q.waf ? '<span class="chip waf">Well-Architected</span>' : '')
+    + (q.official ? '<span class="chip ok">공식 지식 확인</span>' : '');
   const optsHTML = o.order.map((orig, k) => {
     const sel = o.sel.includes(orig);
     let cls = `opt ${multi ? 'check' : 'radio'}${sel ? ' sel' : ''}`;
@@ -95,8 +101,8 @@ function qHTML(q, o) {
   return `<div class="q ${o.hint ? 'hint-on' : ''}">
     <div class="q-head"><div>${chips}</div>${status}</div>
     <div class="stem">
-      <p><span class="lab">상황</span>${highlight(q.scenario, q.keywords || [])}</p>
-      <p><span class="lab">요구사항</span>${highlight(q.requirement, q.keywords || [])}</p>
+      ${q.scenario ? `<p><span class="lab">상황</span>${highlight(q.scenario, q.keywords || [])}</p>` : ''}
+      ${q.requirement ? `<p><span class="lab">요구사항</span>${highlight(q.requirement, q.keywords || [])}</p>` : ''}
       <p class="ask">${highlight(q.question, q.keywords || [])}</p>
     </div>
     <ul class="opts">${optsHTML}</ul>${verdict}</div>`;
@@ -156,8 +162,18 @@ function renderHome() {
   const last = S.history[S.history.length - 1];
   const ma = moduleAcc();
   const cnt = k => QS.filter(k).length;
+  const upd = UPDATES.map(u => {
+    const qs = QS.filter(q => q.batch === u.batch), done = qs.filter(q => S.stats[q.id]).length;
+    return `<div class="update ${S.seenUpdates[u.batch] ? '' : 'unseen'}">
+      <div class="row spread"><b>${S.seenUpdates[u.batch] ? '' : '<span class="chip bad">NEW</span>'}${esc(u.title)}</b><span class="muted">${u.date}</span></div>
+      <p class="muted" style="margin:4px 0 8px">${esc(u.desc)}</p>
+      <div class="row"><div class="bar" style="flex:1;min-width:120px"><i style="width:${pct(done, qs.length)}%"></i></div><span class="muted">${done}/${qs.length} 풀이</span>
+      <button class="btn primary sm" data-upd="${u.batch}">${done ? '새 문제 이어 풀기' : '새 문제만 풀기'}</button></div></div>`;
+  }).join('');
   $app.innerHTML = `
     <h2>대시보드</h2>
+    ${upd ? `<div class="panel"><h3 style="margin-top:0">🆕 업데이트 — 기존 문제를 다 푼 분은 여기서 새 문제만 풀 수 있어요</h3>${upd}
+      <p class="muted" style="font-size:12px;margin:8px 0 0">풀이 기록·오답 노트·모의고사 점수는 이 브라우저에 그대로 유지됩니다.</p></div>` : ''}
     <div class="grid">
       <div class="stat"><small>시험까지</small><b>${days > 0 ? 'D-' + days : days === 0 ? 'D-DAY' : '종료'}</b><small>10/30(금) 오전 9시</small></div>
       <div class="stat"><small>문제 은행</small><b>${QS.length}문항</b><small>지식 확인 ${cnt(q => q.difficulty === 'basic')} · 응용 ${cnt(q => q.difficulty === 'advanced')} · 복수정답 ${cnt(q => q.choose > 1)}</small></div>
@@ -184,6 +200,14 @@ function renderHome() {
       ${QB.briefs.map(b => `<p><b>${b.modules.map(m => esc(modName(m))).join(' / ')}</b><br><span class="muted">${esc(b.text)}</span></p>`).join('')}
     </div>`;
   $app.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+  $app.querySelectorAll('[data-upd]').forEach(b => b.onclick = () => {
+    const batch = b.dataset.upd;
+    S.seenUpdates[batch] = true; save();
+    // unsolved questions of this batch first, then the rest of the batch
+    Object.assign(ST, { mods: [], diff: 'all', type: batch, built: true }); buildStudy();
+    ST.list.sort((a, b) => !!S.stats[a] - !!S.stats[b]); loadStudyQ();
+    go('study');
+  });
 }
 
 // ---------- mock exam ----------
@@ -309,7 +333,7 @@ function buildStudy() {
   ST.list = QS.filter(q =>
     (!ST.mods.length || ST.mods.includes(q.module)) &&
     (ST.diff === 'all' || q.difficulty === ST.diff) &&
-    ({ all: true, multi: q.choose > 1, waf: !!q.waf, star: !!S.star[q.id], wrong: !!S.wrong[q.id], open: !!S.wrong[q.id] && !fixed(q.id), new: !S.stats[q.id] }[ST.type])
+    ({ all: true, multi: q.choose > 1, waf: !!q.waf, star: !!S.star[q.id], wrong: !!S.wrong[q.id], open: !!S.wrong[q.id] && !fixed(q.id), new: !S.stats[q.id], official: !!q.official }[ST.type] ?? (q.batch === ST.type))
   ).map(q => q.id);
   if (ST.shuffle) ST.list = shuffle(ST.list);
   ST.i = 0; loadStudyQ();
@@ -325,7 +349,7 @@ function renderStudy() {
     <div class="panel filters">
       <div><label>모듈</label>${seg('mods', [['', '전체'], ...MODS.map(m => [m, 'M' + m])], ST.mods.length ? ST.mods : [''])}</div>
       <div><label>난이도</label>${seg('diff', [['all', '전체'], ['basic', '지식 확인'], ['advanced', '자격증 응용']], ST.diff)}</div>
-      <div><label>유형</label>${seg('type', [['all', '전체'], ['multi', '답 2·3개 고르기'], ['waf', 'Well-Architected'], ['new', '안 푼 문제'], ['wrong', '오답 전체'], ['open', '오답(미해결)'],['star', '★ 북마크']], ST.type)}</div>
+      <div><label>유형</label>${seg('type', [['all', '전체'], ['multi', '답 2·3개 고르기'], ['waf', 'Well-Architected'], ['new', '안 푼 문제'], ['wrong', '오답 전체'], ['open', '오답(미해결)'], ['star', '★ 북마크'], ['official', '공식 지식 확인'], ...UPDATES.map(u => [u.batch, '🆕 ' + u.date + ' 추가'])], ST.type)}</div>
       <div class="row"><label style="margin:0">순서</label>${seg('shuffle', [['1', '랜덤'], ['0', '순서대로']], ST.shuffle ? '1' : '0')}<span class="muted" style="margin-left:auto">${ST.list.length}문항</span></div>
     </div>
     ${q ? `<div class="panel" data-qid="${q.id}">
@@ -429,7 +453,7 @@ function renderNotes() {
 // ---------- keyboard ----------
 document.addEventListener('keydown', e => {
   if (e.metaKey || e.ctrlKey || e.altKey || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
-  const k = e.key, digit = /^[1-5]$/.test(k) ? +k - 1 : -1;
+  const k = e.key, digit = /^[1-6]$/.test(k) ? +k - 1 : -1;
   const go1 = k === 'Enter' || k === ' ';
   if (view === 'mock' && S.mock && !S.mock.done) {
     const q = BY_ID[S.mock.qids[S.mock.cur]];

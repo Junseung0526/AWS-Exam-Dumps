@@ -4,8 +4,11 @@ import json, glob, os, collections
 
 here = os.path.dirname(os.path.abspath(__file__))
 modules, questions, cards, briefs = {}, [], [], []
-for path in sorted(glob.glob(os.path.join(here, "data", "m*.json"))):
+for path in sorted(glob.glob(os.path.join(here, "data", "*.json"))):
     d = json.load(open(path, encoding="utf-8"))
+    for q in d["questions"]:
+        if d.get("batch"):
+            q["batch"] = d["batch"]  # update batch shown in the dashboard's "what's new" panel
     for m in d["modules"]:
         modules[m["module"]] = m["title"]
     mods = [m["module"] for m in d["modules"]]
@@ -23,7 +26,7 @@ for q in questions:
     ids.add(qid)
     assert q["difficulty"] in ("basic", "advanced"), qid
     assert q["choose"] == len(q["answer"]) == len(set(q["answer"])), qid
-    assert 4 <= len(q["options"]) <= 5, qid
+    assert 4 <= len(q["options"]) <= 6, qid
     assert all(0 <= a < len(q["options"]) for a in q["answer"]), qid
     assert len(q["optionNotes"]) == len(q["options"]), qid
     assert q["module"] in modules, qid
