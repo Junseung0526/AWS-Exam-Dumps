@@ -15,7 +15,8 @@ for path in sorted(glob.glob(os.path.join(here, "data", "*.json"))):
     if d.get("brief"):
         briefs.append({"modules": mods, "text": d["brief"]})
     for c in d.get("cards", []):
-        c.setdefault("module", mods[-1])
+        if "module" not in c:
+            c["module"] = mods[-1]
         cards.append(c)
     questions += d["questions"]
 

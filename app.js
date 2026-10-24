@@ -8,7 +8,7 @@ const MOCK_BASIC = 13, MOCK_ADV = 12;
 const L = 'ABCDEF';
 // Content updates, newest first. Each batch tags its questions (data/*.json "batch") so returning users can solve only the new ones.
 const UPDATES = [
-  { batch: 'kc-2026-10-24', date: '2026-10-24', title: 'AWS Academy 공식 지식 확인 60문항 추가', desc: '모듈 2~7 지식 확인(Canvas) 원문 문항과 공식 정답·해설을 추가했습니다. 오답 보기마다 함정 해설도 달았습니다.' },
+  { batch: 'kc-2026-10-24', date: '2026-10-24', title: '공식 지식 확인 60문항 + 응용 20문항 추가 · 핵심 요약 보강', desc: '모듈 2~7 지식 확인(Canvas) 원문 문항과 공식 정답·해설, 그 내용을 비튼 응용 20문항을 추가했습니다. 핵심 요약 탭에 모듈별 "공식 지식 확인 포인트"와 함정(번역 오류로 정답 개수가 다른 문항 등)을 더했습니다.' },
 ];
 const KEY = 'awsMidterm.v1';
 
