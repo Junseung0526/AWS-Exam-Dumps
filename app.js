@@ -18,7 +18,15 @@ const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch
 const $app = document.getElementById('app');
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
-const perm = q => shuffle(q.options.map((_, i) => i));
+// new option order on every presentation, never repeating the previous order of the same question
+const lastOrder = {};
+function perm(q) {
+  let p;
+  do p = shuffle(q.options.map((_, i) => i)); while (p.join() === lastOrder[q.id]);
+  lastOrder[q.id] = p.join();
+  return p;
+}
+const fixed = id => S.stats[id]?.last === true; // wrong before, answered correctly on the latest attempt
 const pct = (c, t) => t ? Math.round(c * 100 / t) : 0;
 const fmt = sec => { const h = sec / 3600 | 0, m = (sec % 3600) / 60 | 0, s = sec % 60; return (h ? h + ':' : '') + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0'); };
 const isRight = (q, sel) => sel.length === q.answer.length && q.answer.every(a => sel.includes(a));
@@ -53,6 +61,7 @@ function record(q, sel) {
   const ok = isRight(q, sel);
   const st = S.stats[q.id] || (S.stats[q.id] = { a: 0, c: 0 });
   st.a++; if (ok) st.c++;
+  st.last = ok;
   if (!ok) S.wrong[q.id] = (S.wrong[q.id] || 0) + 1;
   return ok;
 }
@@ -78,7 +87,7 @@ function qHTML(q, o) {
       + `</span>${o.bm ? `<button class="bm ${bmOn ? 'on' : ''}" data-bm="${orig}" title="헷갈리는 보기 북마크">${bmOn ? '🔖' : '🏷️'}</button>` : ''}</li>`;
   }).join('');
   const verdict = o.graded
-    ? `<div class="verdict ${isRight(q, o.sel) ? 'ok' : 'bad'}">${isRight(q, o.sel) ? '정답입니다!' : '오답입니다. 정답: ' + q.answer.map(a => L[o.order.indexOf(a)]).sort().join(', ')}</div>
+    ? `<div class="verdict ${isRight(q, o.sel) ? 'ok' : 'bad'}">${isRight(q, o.sel) ? '정답입니다!' + (S.wrong[q.id] ? ' ✅ 오답 노트에서 정답 처리됨 (기록은 남아 있음)' : '') :'오답입니다. 정답: ' + q.answer.map(a => L[o.order.indexOf(a)]).sort().join(', ')}</div>
        <div class="explain"><b>해설</b><br>${esc(q.explanation)}</div>
        ${diagFor(q) ? figHTML(diagFor(q), !o.compact) : ''}
        <p class="muted" style="font-size:13px">출처: ${esc(q.source || '')}</p>`
@@ -300,7 +309,7 @@ function buildStudy() {
   ST.list = QS.filter(q =>
     (!ST.mods.length || ST.mods.includes(q.module)) &&
     (ST.diff === 'all' || q.difficulty === ST.diff) &&
-    ({ all: true, multi: q.choose > 1, waf: !!q.waf, star: !!S.star[q.id], wrong: !!S.wrong[q.id], new: !S.stats[q.id] }[ST.type])
+    ({ all: true, multi: q.choose > 1, waf: !!q.waf, star: !!S.star[q.id], wrong: !!S.wrong[q.id], open: !!S.wrong[q.id] && !fixed(q.id), new: !S.stats[q.id] }[ST.type])
   ).map(q => q.id);
   if (ST.shuffle) ST.list = shuffle(ST.list);
   ST.i = 0; loadStudyQ();
@@ -316,7 +325,7 @@ function renderStudy() {
     <div class="panel filters">
       <div><label>모듈</label>${seg('mods', [['', '전체'], ...MODS.map(m => [m, 'M' + m])], ST.mods.length ? ST.mods : [''])}</div>
       <div><label>난이도</label>${seg('diff', [['all', '전체'], ['basic', '지식 확인'], ['advanced', '자격증 응용']], ST.diff)}</div>
-      <div><label>유형</label>${seg('type', [['all', '전체'], ['multi', '답 2·3개 고르기'], ['waf', 'Well-Architected'], ['new', '안 푼 문제'], ['wrong', '오답'], ['star', '★ 북마크']], ST.type)}</div>
+      <div><label>유형</label>${seg('type', [['all', '전체'], ['multi', '답 2·3개 고르기'], ['waf', 'Well-Architected'], ['new', '안 푼 문제'], ['wrong', '오답 전체'], ['open', '오답(미해결)'],['star', '★ 북마크']], ST.type)}</div>
       <div class="row"><label style="margin:0">순서</label>${seg('shuffle', [['1', '랜덤'], ['0', '순서대로']], ST.shuffle ? '1' : '0')}<span class="muted" style="margin-left:auto">${ST.list.length}문항</span></div>
     </div>
     ${q ? `<div class="panel" data-qid="${q.id}">
@@ -394,11 +403,13 @@ function renderNotes() {
   const stars = Object.keys(S.star).filter(id => BY_ID[id]);
   const item = (id, extra) => { const q = BY_ID[id]; return `<tr><td><span class="chip">M${q.module}</span>${q.difficulty === 'advanced' ? '<span class="chip adv">응용</span>' : ''}</td>
     <td>${esc(q.question)}${extra || ''}</td><td style="white-space:nowrap"><button class="btn sm" data-solve="${id}">풀기</button></td></tr>`; };
+  const open = wrong.filter(([id]) => !fixed(id)).length;
   $app.innerHTML = `<h2>오답 노트</h2>
-    <div class="panel"><div class="row spread"><h3 style="margin:0">틀린 문제 (${wrong.length})</h3>
-      <div class="row"><button class="btn primary sm" id="redo" ${wrong.length ? '' : 'disabled'}>오답만 다시 풀기</button>
+    <div class="panel"><div class="row spread"><h3 style="margin:0">틀린 문제 (${wrong.length}) · 미해결 ${open} · 정답 처리 ${wrong.length - open}</h3>
+      <div class="row"><button class="btn primary sm" id="redoOpen" ${open ? '' : 'disabled'}>미해결 오답 다시 풀기</button>
+      <button class="btn sm" id="redo" ${wrong.length ? '' : 'disabled'}>오답 전체 다시 풀기</button>
       <button class="btn sm" id="clearw" ${wrong.length ? '' : 'disabled'}>오답 노트 비우기</button></div></div>
-      ${wrong.length ? `<table>${wrong.map(([id, n]) => item(id, ` <span class="muted">(${n}회 틀림)</span> <button class="btn sm" data-del="${id}">제거</button>`)).join('')}</table>` : '<p class="empty">아직 틀린 문제가 없습니다.</p>'}</div>
+      ${wrong.length ? `<table>${wrong.map(([id, n]) => item(id, ` ${fixed(id) ? '<span class="chip ok">✅ 정답 처리</span>' : '<span class="chip bad">❌ 미해결</span>'}<span class="muted">(${n}회 틀림)</span> <button class="btn sm" data-del="${id}">제거</button>`)).join('')}</table>` : '<p class="empty">아직 틀린 문제가 없습니다.</p>'}</div>
     <div class="panel"><h3 style="margin-top:0">🔖 헷갈리는 보기 북마크 (${bms.length})</h3>
       ${bms.length ? `<table>${bms.map(id => item(id, `<br><span class="muted">${S.optBm[id].map(o => '· ' + esc(BY_ID[id].options[o]) + (BY_ID[id].answer.includes(o) ? ' <b style="color:var(--ok)">(정답)</b>' : ' <b style="color:var(--bad)">(오답)</b>')).join('<br>')}</span>`)).join('')}</table>`
         : '<p class="empty">채점 후 보기 옆 🏷️ 버튼으로 헷갈리는 보기를 저장하세요.</p>'}</div>
@@ -408,7 +419,9 @@ function renderNotes() {
   const solve = ids => { Object.assign(ST, { mods: [], diff: 'all', type: 'all', built: true }); ST.list = ids; ST.i = 0; loadStudyQ(); go('study'); };
   $app.querySelectorAll('[data-solve]').forEach(b => b.onclick = () => solve([b.dataset.solve]));
   $app.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { delete S.wrong[b.dataset.del]; save(); renderNotes(); });
-  document.getElementById('redo').onclick = () => { Object.assign(ST, { mods: [], diff: 'all', type: 'wrong', built: true }); buildStudy(); go('study'); };
+  const redo = type => { Object.assign(ST, { mods: [], diff: 'all', type, built: true }); buildStudy(); go('study'); };
+  document.getElementById('redo').onclick = () => redo('wrong');
+  document.getElementById('redoOpen').onclick = () => redo('open');
   document.getElementById('clearw').onclick = () => { if (confirm('오답 노트를 비울까요?')) { S.wrong = {}; save(); renderNotes(); } };
   document.getElementById('reset').onclick = () => { if (confirm('풀이 기록, 오답 노트, 북마크, 모의고사 기록이 모두 삭제됩니다.')) { S = blank(); save(); renderNotes(); } };
 }

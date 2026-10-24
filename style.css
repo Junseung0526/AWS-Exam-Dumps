@@ -148,3 +148,5 @@ td, th { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line
 .traps b { color: var(--bad); }
 .traps ul { margin: 4px 0 0; padding-left: 20px; }
 @media (max-width: 560px) { .keys { display: none; } }
+.chip.ok { background: var(--ok-soft); color: var(--ok); border-color: transparent; }
+.chip.bad { background: var(--bad-soft); color: var(--bad); border-color: transparent; }
